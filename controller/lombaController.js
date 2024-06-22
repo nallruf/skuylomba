@@ -84,16 +84,18 @@ const getKategori = async (req, res) => {
 }
 
 
-const getLombaByNama = async (req, res) => {
-    const { nama } = req.params;
-    try {
-        // Gunakan prepared statement dengan placeholder untuk nama
-        const [lomba] = await pool.query(`SELECT * FROM lomba WHERE nama LIKE ?`, [`%${nama}%`]);
-        res.status(200).json(lomba);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
-};
+// const getLombaByNama = async (req, res) => {
+//     const { nama } = req.params;
+//     try {
+//         // Gunakan prepared statement dengan placeholder untuk nama
+//         const [lomba] = await pool.query(`SELECT * FROM lomba WHERE nama LIKE ?`, [`%${nama}%`]);
+//         res.status(200).json(lomba);
+//     } catch (error) {
+//         res.status(500).json({ message: error.message });
+//     }
+// };
+
+
 
 
 const getLombaFiltered = async (req, res) => {
@@ -116,28 +118,49 @@ const getLombaFiltered = async (req, res) => {
     }   
 }
 
+
+
 const getLombaFilter = async (req, res) => {
-    const { kategoriId, name } = req.query;
+    const { jenisId } = req.params;
+    const { nama } = req.body;
 
     // Validasi parameter
-    if (!kategoriId || !name) {
-        return res.status(400).json({ message: 'kategoriId and name are required' });
+    if (!jenisId || !nama) {
+        return res.status(400).json({ message: 'jenisId and name are required' });
     }
+    
 
     try {
+        const [kategori] = await pool.query(`SELECT * FROM kategoriLomba WHERE idJenis = ?`, [jenisId]);
+
+        if (kategori.length === 0) {
+            return res.status(404).json({ message: 'Kategori not found' });
+        }
+
+        const kategoriIds = kategori.map(k => k.id);
+
+        const placeholders = kategoriIds.map(() => '?').join(',');
+
         // Query untuk mengambil data lomba berdasarkan kategoriId dan name
-        const query = `SELECT * FROM lomba WHERE kategoriId = ? AND nama LIKE ?`;
-        const values = [kategoriId, `%${name}%`]; // Gunakan placeholder untuk menghindari SQL Injection
-        const [rows] = await pool.query(query, values);
+        const [lomba] = await pool.query(`
+            SELECT *
+            FROM lomba
+            WHERE kategoriId IN (${placeholders}) AND nama LIKE ?`,
+            [...kategoriIds, `%${nama}%`]
+        );
+        
+        const result = {
+            kategori: kategori,
+            lomba
+        }
 
         // Kirim data lomba sebagai response
-        res.status(200).json(rows);
+        res.status(200).json(result);
     } catch (error) {
-        // Tangkap dan kirimkan error sebagai response
-        console.error('Error executing query:', error.message);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: error.message });
     }
-};
+}   
+        
 
 
 

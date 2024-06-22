@@ -61,7 +61,20 @@ const login = async (req, res) => {
     }
 }
 
+const logout = (req, res) => {
+    const token = req.token; // Token extracted by authMiddleware
+
+    if (token) {
+        blacklist.add(token);
+        return res.status(200).json({ message: 'Logout successful' });
+    }
+
+    res.status(200).json({ message: 'Logout successful' });
+}
+
 module.exports = {
     register,
     login,
+    logout,
+    blacklist
 }
