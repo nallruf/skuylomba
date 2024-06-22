@@ -19,6 +19,7 @@ router.get('/kategori', lombaController.getKategori);
 router.get('/lomba/kategori/:kategoriId', lombaController.getLombaByKategori);
 // router.get('/lomba/kategori/:kategoriId/nama/:nama', lombaController.getLombaFiltered);
 router.get('/lomba/filter/:jenisId', lombaController.getLombaFilter);
+router.get('/jenis', lombaController.getJenis);
 
 router.patch('/lomba/:lombaId/daftar',  authMiddleware.verifyToken ,lombaController.addDaftarLomba);
 

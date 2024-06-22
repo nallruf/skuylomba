@@ -119,6 +119,15 @@ const getLombaFiltered = async (req, res) => {
 }
 
 
+const getJenis = async (req, res) => {
+    try {
+        const [jenis] = await pool.query(`SELECT * FROM jenis`);
+        res.status(200).json(jenis);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 
 const getLombaFilter = async (req, res) => {
     const { jenisId } = req.params;
@@ -174,4 +183,4 @@ const getLombaByKategori = async (req, res) => {
     }
 }
 
-module.exports = { getLomba, getDetailLomba, createLomba, getKategori, getLombaByKategori, getLombaFilter , getLombaFiltered , addDaftarLomba};
+module.exports = { getLomba, getDetailLomba, createLomba, getKategori, getLombaByKategori, getLombaFilter , getLombaFiltered , getJenis, addDaftarLomba};
